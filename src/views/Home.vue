@@ -12,7 +12,7 @@
           <li>
             <h3>
               code
-              <a href="#">here</a>
+              <a href="https://github.com/aayush8/vue-covid19-rapidapi/tree/prod1">here</a>
             </h3>
           </li>
         </ul>
