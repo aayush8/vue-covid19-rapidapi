@@ -44,7 +44,41 @@
           aria-describedby="button-addon1"
         />
       </div>
-      <template v-if="isEmptyObject(countryResult)">
+      <template v-if="displayTable">
+        <!-- displaying table  logic here -->
+        <table class="table table-responsive-sm table-striped table-dark">
+          <thead>
+            <tr>
+              <th scope="col" colspan="2" class="text-center">Location</th>
+              <!-- <th scope="col"></th> -->
+              <th scope="col">Total Cases</th>
+              <th scope="col">New Cases</th>
+              <th scope="col">Active Cases</th>
+              <th scope="col">Critical Cases</th>
+              <th scope="col">Recovered Cases</th>
+              <th scope="col">Total Deaths</th>
+              <th scope="col">New Deaths</th>
+              <th scope="col">Total Tests</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in result" :key="item.country">
+              <td class="text-center" colspan="2">
+                {{ item.country }}
+              </td>
+              <td>{{ item.cases.total }}</td>
+              <td>{{ item.cases.new }}</td>
+              <td>{{ item.cases.active }}</td>
+              <td>{{ item.cases.critical }}</td>
+              <td>{{ item.cases.recovered }}</td>
+              <td>{{ item.deaths.total }}</td>
+              <td>{{ item.deaths.new }}</td>
+              <td>{{ item.tests.total }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </template>
+      <template v-if="isEmptyObject(countryResult) && !displayTable">
         <div class="red-hint">
           <p class="lead">* usa for America</p>
           <p class="lead">* china for China</p>
@@ -52,7 +86,7 @@
           <p class="lead">* table to display table for all Locations</p>
         </div>
       </template>
-      <template v-if="!isEmptyObject(countryResult)">
+      <template v-if="!isEmptyObject(countryResult) && !displayTable">
         <p class="lead red-hint">
           Last updated {{ getRelativeDate(countryResult[0].day) }}
         </p>
@@ -94,20 +128,23 @@ export default {
   name: 'Home',
 
   async mounted() {
-    // const res = await fetch('https://covid-193.p.rapidapi.com/statistics', {
-    //   method: 'GET',
-    //   header,
-    // })
-    // const response = await res.json()
-    // const res2 = await response.response
-    // await this.updateResult(res2)
-    // // await console.log(res2)
+    const res = await fetch('https://covid-193.p.rapidapi.com/statistics', {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-host': 'covid-193.p.rapidapi.com',
+        'x-rapidapi-key': 'a7614406e2msh59ee1345507dfb4p186de0jsn2bf93e973b3a',
+      },
+    })
+    const response = await res.json()
+    const res2 = await response.response
+    await this.updateResult(res2)
   },
   data() {
     return {
       country: '',
       result: [],
       countryResult: {},
+      displayTable: false,
     }
   },
   methods: {
@@ -144,8 +181,12 @@ export default {
     },
     fetchOnCondition: function(country) {
       if (country === 'table') {
+        if (this.result.length > 0) {
+          this.displayTable = true
+        }
         console.log('Ready to put table logic here ..')
       } else {
+        this.displayTable = false
         this.fetchCountryResult(country)
       }
     },
@@ -157,18 +198,7 @@ export default {
 table {
   border: 1px solid black;
 }
-.onecountry {
-  a {
-    color: white;
-  }
-  cursor: pointer;
-  &:hover {
-    background-color: #fff;
-    a {
-      color: black;
-    }
-  }
-}
+
 input {
   max-width: 30em;
 }
